@@ -12,6 +12,9 @@
 /* maximal number of cars on bridge and island together -- do not change this */
 const uint8_t max_cars = 10;
 
+/* maximal number of cycles the direction stays the same */
+const uint8_t max_cycle_per_dir = 20;
+
 /* sensors ml (mainland) il (island) in and out */
 bool ml_out, il_out, ml_in, il_in = false;
 
@@ -41,13 +44,11 @@ void controller(void) {
 
 	static uint8_t carsOnBridge = 0; // Counter to count amount of cars on bridge
 	static uint8_t carsOnIsland = 0; // Counter to count amount of cars on island
+	static uint16_t thisDirCount = 0; // Count how many cycles the traffic flows in this direction
 	static bool dirToIsland = false; // Boolean to show the direction of the traffic flow
-	static bool dirSwitch = false; // identifies if the direction is currently being switched
 
 	// state machine. 0 = initial, 1 = traffic flow normal, 2 = direction switch ongoing
 	static uint8_t state = 0;
-
-	bool carWaiting = false;
 
 	/* Gather sensor information */
 	if (dirToIsland) {
@@ -66,14 +67,16 @@ void controller(void) {
 			ml_in = false;  // acknowledge sensor
 		}
 		if (il_out) {
-			carWaiting = true;
-			carsOnIsland--; // TODO not sure
+			printf("ERROR: Car left island but traffic flows other direction.");
+			carsOnBridge++;
+			carsOnIsland--;
 			il_out = false; // acknowledge sensor
 		}
 	} else { /* direction to mainland */
 		/* update counters, acknowledge sensors */
 		if (il_out) {
 			carsOnBridge++;
+			carsOnIsland--;
 			il_out = false; // acknowledge sensor
 		}
 		if (ml_in) {
@@ -85,10 +88,12 @@ void controller(void) {
 			il_in = false;  // acknowledge sensor
 		}
 		if (ml_out) {
-			carWaiting = true;
+			printf("ERROR: Car left mainland but traffic flows other direction.");
+			carsOnBridge++;
 			ml_out = false; // acknowledge sensor
 		}
 	}
+	thisDirCount++;
 
 	/* State Machine */
 	switch (state) {
@@ -101,43 +106,44 @@ void controller(void) {
 		break;
 
 	case 1: // traffic flow normal
+
+		/* max number of cars on island reached */
+		if (dirToIsland && (carsOnBridge + carsOnIsland >= max_cars)) {
+			state = 2;    // initiate direction switch
+			ml = red;     // stop traffic from mainland
+		}
+
+		/* switch direction if too many cycles in one direction */
+		if (thisDirCount > max_cycle_per_dir) {
+
+			// check number of cars first
+			if (carsOnBridge + carsOnIsland < max_cars) {
+				// switch direction
+				il = red;
+				ml = red;
+				state = 2;
+			} else { // max number of cars on island => do not switch direction
+				thisDirCount = 0; // reset counter to not run into memory issues
+			}
+		}
+		break;
+
+	case 2:
+	// direction switch ongoing
+	if (carsOnBridge == 0) { // perform direction switch only if no cars on bridge
+		dirToIsland = dirToIsland ? false : true; // change direction variable
+		// switch traffic lights
 		if (dirToIsland) {
-			/* max number of cars reached */
-			if (carsOnBridge + carsOnIsland >= max_cars) {
-				state = 2;    // initiate direction switch
-				ml = red;     // stop traffic from mainland
-			}
-
-			/* car is waiting at island */
-			if (carWaiting) {
-				state = 2;    // initiate direction switch
-				ml = red;     // stop traffic from mainland
-			}
+			ml = green;
+		} else {
+			il = green;
 		}
-		else {  // direction: mainland
-			/* car is waiting at mainland and max cars in island not reached*/
-			if (carWaiting && (carsOnBridge + carsOnIsland < max_cars)) {
-				state = 2;    // initiate direction switch
-				il = red;         // stop traffic from mainland
-			}
-		}
-
-		break;
-
-	case 2: // direction switch ongoing
-		if (carsOnBridge == 0) { // perform direction switch only if no cars on bridge
-			dirToIsland = dirToIsland ? false : true; // change direction variable
-			// switch traffic lights
-			if (dirToIsland) {
-				ml = green;
-			} else {
-				il = green;
-			}
-			state = 1;  // state to "normal traffic flow"
-		}
-
-		break;
+		thisDirCount = 0;
+		state = 1;  // state to "normal traffic flow"
 	}
+
+	break;
+}
 
 }
 
