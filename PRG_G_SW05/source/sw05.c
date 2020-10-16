@@ -44,9 +44,12 @@ void controller(void) {
 	static bool dirToIsland = false; // Boolean to show the direction of the traffic flow
 	static bool dirSwitch = false; // identifies if the direction is currently being switched
 
+	// state machine. 0 = initial, 1 = traffic flow normal, 2 = direction switch ongoing
+	static uint8_t state = 0;
+
 	bool carWaiting = false;
 
-	/* ------- DIRECTION TO ISLAND ------- */
+	/* Gather sensor information */
 	if (dirToIsland) {
 		/* update counters, acknowledge sensors */
 		if (ml_out) {
@@ -67,22 +70,7 @@ void controller(void) {
 			carsOnIsland--; // TODO not sure
 			il_out = false; // acknowledge sensor
 		}
-
-		/* max number of cars reached and no direction switch ongoing */
-		if(carsOnBridge + carsOnIsland >= max_cars && !dirSwitch) {
-			dirSwitch = true; // initiate direction switch
-			ml = red;         // stop traffic from mainland
-		}
-
-		/* car is waiting at island and no direction switch ongoing  */
-		if(carWaiting && !dirSwitch){
-			dirSwitch = true; // initiate direction switch
-			ml = red;         // stop traffic from mainland
-		}
-	}
-
-	/* ------- DIRECTION TO MAINLAND ------- */
-	else {
+	} else { /* direction to mainland */
 		/* update counters, acknowledge sensors */
 		if (il_out) {
 			carsOnBridge++;
@@ -100,18 +88,44 @@ void controller(void) {
 			carWaiting = true;
 			ml_out = false; // acknowledge sensor
 		}
-
-		/* car is waiting at mainland and no direction switch ongoing  */
-		if(carWaiting && !dirSwitch){
-			dirSwitch = true; // initiate direction switch
-			il = red;         // stop traffic from mainland
-		}
 	}
 
-	/* Direction switch ongoing ? */
-	if (dirSwitch) {
-		if (carsOnBridge == 0) { // no more cars on bridge
-			// perform direction switch now
+	/* State Machine */
+	switch (state) {
+	case 0: // initial state
+		dirToIsland = false;  // direction to island, set traffic lights
+		ml = red;
+		il = green;
+
+		state = 1;    // state to "normal traffic flow"
+		break;
+
+	case 1: // traffic flow normal
+		if (dirToIsland) {
+			/* max number of cars reached */
+			if (carsOnBridge + carsOnIsland >= max_cars) {
+				state = 2;    // initiate direction switch
+				ml = red;     // stop traffic from mainland
+			}
+
+			/* car is waiting at island */
+			if (carWaiting) {
+				state = 2;    // initiate direction switch
+				ml = red;     // stop traffic from mainland
+			}
+		}
+		else {  // direction: mainland
+			/* car is waiting at mainland and max cars in island not reached*/
+			if (carWaiting && (carsOnBridge + carsOnIsland < max_cars)) {
+				state = 2;    // initiate direction switch
+				il = red;         // stop traffic from mainland
+			}
+		}
+
+		break;
+
+	case 2: // direction switch ongoing
+		if (carsOnBridge == 0) { // perform direction switch only if no cars on bridge
 			dirToIsland = dirToIsland ? false : true; // change direction variable
 			// switch traffic lights
 			if (dirToIsland) {
@@ -119,7 +133,11 @@ void controller(void) {
 			} else {
 				il = green;
 			}
+			state = 1;  // state to "normal traffic flow"
 		}
+
+		break;
 	}
+
 }
 
