@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 typedef enum {
 	red, orange, yellow, green, turquoise, blue
@@ -83,12 +84,12 @@ int main(void) {
 		else if(activationCounter >= 100 && activationCounter <= 199){
 			currentLevel = medium;
 		}
-		else if(activationCounter >= 200 && activationCounter <= sizeof(activationCounter)){
+		else if(activationCounter >= 200 && activationCounter < USHRT_MAX){  // ushort max (number of values possible for uint16_t)
 			currentLevel = high;
 		}
 		// save intensity for evaluation later
 		prevLevels[cycleCounter++] = currentLevel;
-		if(cycleCounter >= 10)
+		if(cycleCounter >= 9)
 		{
 			cycleCounter = 0;  // set counter to 0 again (start from beginning)
 		}
