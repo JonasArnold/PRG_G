@@ -11,7 +11,6 @@
 
 // Settings
 static const uint16_t PollingRateMs = 50; // after x ms a new measurement value is saved
-static const uint8_t DelayPerCycleMs = 10;  // how many MS to wait while measuring
 // Graphic settings
 static const uint16_t MaxChars = 100;
 
@@ -23,7 +22,7 @@ int main(void) {
 
 	while (true) { /* run forever */
 
-		uint16_t pastMs = PollingRateMs;  // initialize with max value
+		uint32_t now = 0;
 		uint32_t countMeasurement  = 0;   // number of measurements made
 		data_t *pointer = NULL;           // pointer to measurement data in heap
 
@@ -35,8 +34,8 @@ int main(void) {
 		while (getSW1()) { /* as long as SW is activated */
 
 			/* measure if the measuring time is reached */
-			if (pastMs >= PollingRateMs) {
-				pastMs = 0;  // reset counter
+			if (msTicks >= (now + PollingRateMs)) {
+				now = msTicks;  // save time
 
 				/* measure brightness */
 				ADC1_Start();  // start conversion
@@ -53,12 +52,6 @@ int main(void) {
 
 				(*pointer)[countMeasurement++] = value;
 			}
-			else
-			{
-				pastMs += DelayPerCycleMs;  // add to MS counter
-			}
-			delay_ms(DelayPerCycleMs);
-
 		}   // end measurement
 
 		printf("measurement ended\n");
@@ -97,8 +90,8 @@ int main(void) {
 			maxRows = countMeasurement;
 		}
 
-		uint32_t rows[maxRows];
-		uint32_t largestRow;
+		uint32_t rows[200] = { 0 };  // all elements 0
+		uint32_t largestRow = 0;
 		for(uint16_t row = 0; row < maxRows; row++){  // iterate through row
 			uint32_t sumBar = 0;
 			for(uint16_t valueCount = 0; valueCount < valuesPerBar; valueCount++){ // calculate sum of this bar
