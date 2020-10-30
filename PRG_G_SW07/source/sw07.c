@@ -2,6 +2,20 @@
  * @file    sw07.c
  * @brief   Solution to homework SW07.
  */
+
+/* Bericht SW07:
+ *
+ * Die memory Funktionen habe ich verstanden. Endlich weiss ich auch was heap bedeutet,
+ * das war schon lange ein Raetsel für mich.
+ * Das Programm funktioniert grundsaetzlich. Auf den Median habe ich verzichtet, da
+ * ich schon lange genug mit dem Programmieren der Datenauswertung beschaeftigt war.
+ * Eine klare Verbesserung waere noch einige Elemente zwischenzuspeichern und nur
+ * alle x Elemente tatsaechlich in den Heap zu speichern.
+ * Damit wuerde verhindert, dass es zu Fragmentierung kommt.
+ *
+ */
+
+
 #include "board.h"
 #include <limits.h>
 #include <stdio.h>
@@ -30,7 +44,6 @@ int main(void) {
 			;
 
 		printf("start measurement\n");
-
 		while (getSW1()) { /* as long as SW is activated */
 
 			/* measure if the measuring time is reached */
