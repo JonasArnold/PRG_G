@@ -11,6 +11,10 @@
  * mit typedef uebersichtlicher.
  * Rekursion kannte ich bereits vor PRG.
  *
+ * Ein Problem, dass bei grossen n mit der fibonacci Funktion auftreten koennte:
+ * Der Stack muss sich die ganzen Ruecksprung-Adressen merken und die Variablen
+ * zwischenspeichern, was dazu fuehren koennte, dass er sich fuellt und es einen
+ * Stack overflow gibt.
  */
 
 
@@ -75,7 +79,7 @@ void Aufg_8_2()
 static uint32_t integrate(fun_t *function, uint32_t a, uint32_t b, uint32_t deltaX){
 	if(a > b){
 		printf("not implemented!");
-		return;
+		return 0;
 	}
 
 	int sum = 0;
