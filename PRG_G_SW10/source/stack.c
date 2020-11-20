@@ -1,12 +1,40 @@
 /* stack.c, implement a stack with dynamic memory allocation */
 
+
+/*
+ * Bericht SW10
+ * Die Wiederverwendung des Codes von letzter Woche finde ich sinnvoll. So koennen wir uns auf die Unit tests fokussieren.
+ * Ich habe selber schon viele Unit tests geschrieben in C#, deshalb ist das kein Neuland mehr fuer mich.
+ * Ich hoffe, dass wir naechste Woche noch selber Unit tests schreiben koennen, das waere ja dann bei einer Entwicklung
+ * auch so.
+ *
+ * Bezueglich meines Codes von dieser Woche:
+ * Implementierung lief problemlos, ich konnte den Code von letzter Woche mehr oder weniger uebernehmen.
+ * 2 Tests beim Advanced failen, ich weiss auch warum:
+ * IsEqual(Init(0), STACK_NO_ERROR) sollte meiner Meinung nach nicht NoError zurueckgeben, da ja kein Memory alloziert werden kann so
+ * IsEqual(DeInit(), STACK_NO_ERROR) funktioniert entsprechend auch nicht, da ja kein Memory alloziert wurde
+ * Diese Probleme koennte ich problemlos loesen, z.B. mit einer Variablen, die sich merkt ob schon initialisiert wurde.
+ * Aber wie schon erwaehnt eigentlich sollte eine initialisierung mit Size 0 nach meiner Meinung nicht NoError zurueckgeben.
+ * Deshalb habe ich es so gelassen.
+ * Vielleicht koennten Sie ja naechste Woche erklaeren warum das NoError zurueckgeben soll.
+ *
+ * Resultate Unit Tests:
+ * Testcases: failed: 1
+ *            passed: 3
+ * Checks:    failed: 2
+ *            passed: 1663
+ *
+ */
+
+
+
 #include "stack.h"
 #include <stdlib.h> /* for malloc() */
 #include <stdio.h>  /* for printf */
 
 // Variables
 static Stack_t *data;  // stack
-static uint8_t index = 0; // first free element
+static uint16_t index = 0; // first free element
 // index = {1...stackSize} stack is not empty
 // index = 0 stack is empty
 // index > stackSize: ERROR
@@ -42,7 +70,7 @@ StackError_t Pop(Stack_t *pStackElement){
 	}
 
 	index--;  // go back to last written element
-	uint8_t tmp = data[index];
+	Stack_t tmp = data[index];
 	data[index] = 0;
 	*pStackElement = tmp;
 	return STACK_NO_ERROR;
@@ -81,8 +109,8 @@ StackError_t DeInit(void) {
 		free(data);
 		data = NULL;
 		return STACK_NO_ERROR;
-	} else{ // not initialized yet
-		// error
+	} else{ // data is NULL
+		// else not initialized: error
 		return STACK_NO_MEMORY;
 	}
 }

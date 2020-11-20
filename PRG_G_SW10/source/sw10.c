@@ -131,8 +131,8 @@ int main(void) {
 	UCUNIT_Init(); /* initialize test framework */
 
 	/* Call test cases */
-	 CheckInitDeinit();
-	 CheckBasics();
+	CheckInitDeinit();
+	CheckBasics();
 	CheckUnderOverflow();
 	// CheckAdvanced();
 
