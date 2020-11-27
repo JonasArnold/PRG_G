@@ -7,6 +7,12 @@
 #include "board.h"
 #include <stdio.h>
 
+// internal functions
+void __setSSEG1Segments(uint8_t A, uint8_t B, uint8_t C, uint8_t D, uint8_t E, uint8_t F, uint8_t G, uint8_t DP);
+void __setSSEG2Segments(uint8_t A, uint8_t B, uint8_t C, uint8_t D, uint8_t E, uint8_t F, uint8_t G, uint8_t DP);
+void __setSSEGSegments(uint8_t segment, uint8_t A, uint8_t B, uint8_t C, uint8_t D, uint8_t E, uint8_t F, uint8_t G, uint8_t DP);
+void setSSEGchar(uint8_t segment, char character);
+
 void setBothSSEGnum(uint8_t number)
 {
 	if(number == 0xFF)  // command to clear display
