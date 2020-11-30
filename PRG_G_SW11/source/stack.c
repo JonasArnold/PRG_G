@@ -94,3 +94,16 @@ StackError_t DeInit(void) {
 		return STACK_NO_MEMORY;
 	}
 }
+
+/* Removes all values from the stack, returns true if this was successful */
+bool Clear(void){
+	StackError_t error;
+	Stack_t element;
+	// pop and discard all elements
+	do{
+		error = Pop(&element);
+	}while(error == STACK_NO_ERROR);
+
+	return isEmpty();
+}
+

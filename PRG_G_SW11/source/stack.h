@@ -50,6 +50,9 @@ extern StackError_t Pop(Stack_t *stackElementp);
 /* Returns the top element from the stack without removing it, returns error code */
 extern StackError_t Peek(Stack_t *stackElementp);
 
+/* Removes all values from the stack, returns true if this was successful */
+extern bool Clear(void);
+
 /* Returns true if the stack is empty */
 extern bool isEmpty(void);
 
