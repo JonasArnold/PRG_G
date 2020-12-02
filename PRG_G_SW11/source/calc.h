@@ -2,7 +2,7 @@
  * calc.h
  *
  *  Created on: 27.11.2020
- *      Author: Colin Bos, Jonas Arnold
+ *      Author: Collin Bos, Jonas Arnold
  */
 
 #ifndef CALC_H_
@@ -12,11 +12,11 @@
 #include "io.h"
 
 typedef enum{
-	missing_operant, division_by_0, operand_nan, overflow
+	operand_nan, missing_operant, division_by_0, overflow
 } calc_error_t;
 
 // peeks the stack
-// if the first element is a number => do nothing
+// if the first element is a number => call displayResult to simply display it
 // if the first element is an operator:
 // -> pop the three newest elements from the stack:
 //    1. operator ('+', '-', '*', '%' (ASCII))

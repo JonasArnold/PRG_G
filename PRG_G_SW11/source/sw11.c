@@ -1,13 +1,6 @@
 /*
  * sw11.c
- * Authors: Colin Bos, Dominic Sonderegger, Jonas Augustin, Jonas Arnold
- */
-
-
-/* Bericht:
- *
- *
- *
+ * Authors: Collin Bos, Dominic Sonderegger, Jonas Augustin, Jonas Arnold
  */
 
 #include <stdio.h>
@@ -25,8 +18,9 @@ int main(void) {
 
 	// endless loop
 	while(true){
-		nextInput();  // io.h
-		calculate();  // calc.h
+		if(nextInput()){  // io.h
+			calculate();  // calc.h
+		}
 	}  // end while true
 
 	return 0;

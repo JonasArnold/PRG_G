@@ -16,7 +16,8 @@
 // reads out number if SW3 was pressed
 // reads out operator if SW4 was pressed
 // puts this information on the stack as element_t (defined in calc.h)
-extern void nextInput(void);
+// returns true if a new input happened
+extern bool nextInput(void);
 
 // displays the result on the hardware
 // peeks the stack

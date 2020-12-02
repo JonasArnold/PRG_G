@@ -2,7 +2,7 @@
  * calc.c
  *
  *  Created on: 27.11.2020
- *      Author: Colin Bos, Jonas Arnold
+ *      Author: Collin Bos, Jonas Arnold
  */
 
 #include <stdio.h>  // for printf
@@ -82,21 +82,24 @@ void calculate(void){
 			break;
 
 		case '-':
-			result = operand1.value - operand2.value;
+			result = operand2.value - operand1.value;
 			break;
 
 		case '*':
 			result = operand1.value * operand2.value;
 			break;
 
-		case '%':
-			if(operand2.value == 0){
+		case '/':
+			if(operand1.value == 0){
 				printf("calc.c => calculate(): division by zero\n");
 				pushError(division_by_0);
 				return;
 			}
 
-			result = operand1.value / operand2.value;
+			result = operand2.value / operand1.value;
+			break;
+		default:
+			printf("calc.c => calculate(): operator is unknown character\n");
 			break;
 		}
 
@@ -107,6 +110,10 @@ void calculate(void){
 			printf("calc.c => calculate(): failed to push result to stack. Stack Error: %d\n", stackError);
 			return;
 		}
+		displayResult();
+	}
+	else if(stackElement.type == number){
+		// display the number on the display
 		displayResult();
 	}
 }
