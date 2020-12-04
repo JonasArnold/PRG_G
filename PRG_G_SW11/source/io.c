@@ -15,6 +15,7 @@
 bool nextInput(void) {
 	element_t val = { .type = 1, .value = 0 };
 	element_t op = { .type = 2, .value = 0 };
+	StackError_t stackError = STACK_NO_ERROR;
 	bool inputHappened = false;
 
 	if (getSW1()) {
@@ -35,13 +36,20 @@ bool nextInput(void) {
 		}
 	}
 
+
 	if (getSW3()) {
 		while(getSW3()){ delay_ms(50); }  // debouncing the button press
-		Push(val);
+		stackError = Push(val);
+		if(stackError != STACK_NO_ERROR) { // error while pushing
+				printf("io.c => nextInput(): Failed to push new number to stack, Stack Error: %d\n", stackError);
+		}
 		inputHappened = true;
 	} else if (getSW4()) {
 		while(getSW4()){ delay_ms(50); }  // debouncing the button press
-		Push(op);
+		stackError = Push(op);
+		if(stackError != STACK_NO_ERROR) { // error while pushing
+				printf("io.c => nextInput(): Failed to push new operator to stack, Stack Error: %d\n", stackError);
+		}
 		inputHappened = true;
 	}
 
